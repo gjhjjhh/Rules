@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent  # 库主目录
 DOMAIN_DIR = BASE_DIR / "domain"  # main.py生成的域名目录
 OUTPUT_ROOT = BASE_DIR / "output"  # 输出目录
 
-# 格式配置（严格按参考示例）
+# 格式配置
 FORMAT_CONFIG = {
     "singbox": {
         "suffix": ".json",
@@ -95,7 +95,7 @@ def get_meta():
 
 
 def read_domains(file_path):
-    """读取域名（不进行任何处理）"""
+    """读取域名"""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return [line.strip() for line in f if line.strip()]
@@ -105,7 +105,7 @@ def read_domains(file_path):
 
 
 def build_header(fmt_info, total, meta):
-    """生成文件头（简化版）"""
+    """生成文件头"""
     comment = fmt_info["comment"]
     if fmt_info.get("special_header"):  # Loon格式特殊头部
         return [
