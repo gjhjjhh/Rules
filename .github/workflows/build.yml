@@ -12,10 +12,14 @@ jobs:
       contents: write
     env:
       TZ: Asia/Shanghai
+      BRANCH: build
 
     steps:
-      - name: 拉取代码
+      - name: 拉取代码（仅获取build分支）
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}  # 直接切到build分支
+          fetch-depth: 1  # 只拉取最新提交，简单基础
 
       - name: 配置Python
         uses: actions/setup-python@v5
@@ -62,16 +66,22 @@ jobs:
               rm -rf mihomo)
           done
 
-      # 仅添加提交推送步骤，不修改其他内容
-      - name: 提交output目录到仓库
+      - name: 推送output/和domain/的变更
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/
-          if git status --porcelain | grep -q .; then
-            git commit -m "Auto update rules: $(date +'%Y-%m-%d %H:%M:%S')"
-            git push origin build
+          # 基础配置身份
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # 添加需要推送的目录
+          git add output/ domain/
+
+          # 检查是否有变更
+          if [ -n "$(git status --porcelain)" ]; then
+            # 提交
+            git commit -m "Update: $(date +'%Y-%m-%d %H:%M')"
+            # 简单直接推送当前分支到远程build分支
+            git push origin ${{ env.BRANCH }}
           fi
 
       - name: 完成
-        run: echo "🎉 所有规则已生成在output目录"
+        run: echo "🎉 操作完成"
