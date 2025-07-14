@@ -74,32 +74,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config core.compression 1
-          git config core.looseCompression 1
 
-      - name: 高效提交变更
+      - name: 提交变更
         run: |
           # 拉取最新变更避免冲突
           git pull origin build --rebase --no-verify
           
-          # 仅添加变更文件
+          # 添加变更文件
           git add domain output
           
-          # 检查是否有变更
-          if [ -n "$(git status --porcelain)" ]; then
-            # 创建提交
+          # 检查是否有变更（参照示例的简洁判断方式）
+          if ! git diff --staged --quiet; then
             git commit -m "🚀 CI Updated - $(date +'%Y-%m-%d %H:%M')" --no-verify
-            
-            # 推送变更
-            git push origin build --force --no-progress --no-verify
+            git push origin build --no-progress --no-verify
           else
             echo "没有变更需要提交"
           fi
 
       - name: 删除远程build分支
         run: |
-          # 尝试删除远程build分支，忽略分支不存在的错误
           git push origin --delete build || true
-        continue-on-error: true  # 即使删除失败也不影响整个工作流
+        continue-on-error: true
 
       - name: 清理旧工作流
         uses: Mattraks/delete-workflow-runs@main
