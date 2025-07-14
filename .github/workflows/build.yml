@@ -1,33 +1,24 @@
-name: Rules Maker
+name: Build Rules
 
 on:
-  push:
-    branches: [build]
-  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"  # 保持定时触发
+  workflow_dispatch:  # 保持手动触发
+
+env:
+  TZ: Asia/Shanghai  # 保持时区设置
 
 jobs:
-  generate:
+  Build_Rules:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-    env:
-      TZ: Asia/Shanghai
-      BRANCH: build
+      contents: write  # 保留写入权限
+      actions: write   # 保留清理工作流权限
 
     steps:
-      - name: 拉取代码（仅获取build分支）
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.BRANCH }}
-          fetch-depth: 1
-          token: ${{ secrets.GITHUB_TOKEN }}  # 显式添加认证令牌
+      - uses: actions/checkout@v3  # 保持原checkout版本
 
-      - name: 配置Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
+      # 替换为指定的中间过程步骤
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
@@ -43,17 +34,14 @@ jobs:
         run: |
           echo "转换格式生成output目录..."
           python convert_formats.py
-          echo "output目录内容："
-          ls -lR output  # 替换tree命令
+          echo "output目录结构："
+          tree output
 
       - name: 编译Singbox/Mihomo规则
         run: |
-          set -e  # 启用错误退出机制
-          
           # 编译Singbox
           find ./output -name "singbox.json" | while read json_file; do
-            dir=$(dirname "$json_file")
-            (cd "$dir" && \
+            (cd $(dirname $json_file) && \
               wget -q https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz -O sing-box.tar.gz && \
               tar -xzf sing-box.tar.gz && \
               ./*/sing-box rule-set compile singbox.json && \
@@ -62,8 +50,7 @@ jobs:
 
           # 编译Mihomo
           find ./output -name "mihomo.yaml" | while read yaml_file; do
-            dir=$(dirname "$yaml_file")
-            (cd "$dir" && \
+            (cd $(dirname $yaml_file) && \
               wget -q https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz -O mihomo.gz && \
               gzip -d mihomo.gz && \
               chmod +x mihomo && \
@@ -71,19 +58,17 @@ jobs:
               rm -rf mihomo)
           done
 
-      - name: 推送output/和domain/的变更
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # 检查实际变更
-          git add output/ domain/
-          if ! git diff-index --quiet HEAD --; then
-            git commit -m "Update: $(date +'%Y-%m-%d %H:%M')"
-            git push origin ${{ env.BRANCH }}
-          else
-            echo "没有检测到变更，跳过提交"
-          fi
+      # 保留原自动提交推送步骤
+      - name: Commit & Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 🚀 CI Updated
 
-      - name: 完成
-        run: echo "🎉 操作完成"
+      # 保留原清理旧工作流步骤
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 7
+          keep_minimum_runs: 3
