@@ -18,25 +18,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: build  # 明确检出build分支
           fetch-depth: 0
 
-      - name: Install Dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Collect
+      - name: 收集规则
         run: |
           echo "生成原始域名文件..."
           python collect.py
           echo "domain目录生成完成"
 
-      - name: Transform
+      - name: 转换格式
         run: |
           echo "转换格式生成output目录..."
           python transform.py
           echo "output目录内容："
-          ls -lR output  # 使用ls替代tree，避免额外安装
+          ls -lR output
 
       - name: 编译Singbox/Mihomo规则
         run: |
@@ -72,21 +73,24 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config core.compression 1  # 中等压缩
+          git config core.compression 1
           git config core.looseCompression 1
 
       - name: 高效提交变更
         run: |
+          # 拉取最新变更避免冲突
+          git pull origin build --rebase --no-verify
+          
           # 仅添加变更文件
           git add domain output
           
           # 检查是否有变更
           if [ -n "$(git status --porcelain)" ]; then
-            # 创建提交（禁用自动压缩）
+            # 创建提交
             git commit -m "🚀 CI Updated - $(date +'%Y-%m-%d %H:%M')" --no-verify
             
-            # 高效推送（禁用进度显示，启用压缩）
-            git push origin HEAD:build --no-progress --no-verify
+            # 强制推送（安全，因为我们是唯一修改者）
+            git push origin build --force --no-progress --no-verify
           else
             echo "没有变更需要提交"
           fi
