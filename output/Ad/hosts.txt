@@ -1,6 +1,6 @@
 # Title: Hosts 规则
 # Description: 系统Hosts文件
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 127.0.0.1	localhost
@@ -27624,7 +27624,6 @@
 0.0.0.0	dressingreviewer.xyz
 0.0.0.0	drevonatursja.click
 0.0.0.0	drewpickles.com
-0.0.0.0	drexilon.xn--q9jyb4c
 0.0.0.0	driasstichos.top
 0.0.0.0	driect-jabnjk04.com
 0.0.0.0	dried-delivery.com
@@ -90033,17 +90032,11 @@
 0.0.0.0	xmrpxzbf.shop
 0.0.0.0	xmtrading.com
 0.0.0.0	xmtrk.com
-0.0.0.0	xn-----6kcacs9ajdmhcwdcbwwcnbgd13a.xn--p1ai
-0.0.0.0	xn----jtbjfcbdfr0afji4m.xn--p1ai
 0.0.0.0	xn--12cg1cwavsheby0grcyae2puc3c5d.com
-0.0.0.0	xn--2qu92fhtxsxexqab.xn--fiqs8s
-0.0.0.0	xn--2qux23cwrdmnaz3gj3w.xn--fiqs8s
-0.0.0.0	xn--2ss830adjbqy7h.xn--fiqs8s
 0.0.0.0	xn--42c9bsq2d4f7a2a.com
 0.0.0.0	xn--42c9bsq2d4fsbu.com
 0.0.0.0	xn--4dkua4c8143c.jp
 0.0.0.0	xn--80adxhks.art
-0.0.0.0	xn--80affa3aj0al.xn--80asehdb
 0.0.0.0	xn--80ak6aa92e.com
 0.0.0.0	xn--aaexpressdelivery-9rb9i.site
 0.0.0.0	xn--aanacionaldelivery-7ub5j.store
@@ -90054,13 +90047,11 @@
 0.0.0.0	xn--durhre-yxa.de
 0.0.0.0	xn--e1aqdnq.art
 0.0.0.0	xn--edkc9m807k.jp
-0.0.0.0	xn--g1aclgn5a.xn--p1ai
 0.0.0.0	xn--im-1z5cr40w.top
 0.0.0.0	xn--jor0b302fdhgwnccw8g.com
 0.0.0.0	xn--lgendetektor-dlb.agency
 0.0.0.0	xn--mgbkt9eckr.net
 0.0.0.0	xn--microsoftonlin-e4b.live
-0.0.0.0	xn--n7qz18cpi6a.xn--55qx5d
 0.0.0.0	xn--n8j0la8wb3547bghe.jp
 0.0.0.0	xn--n8jwkyc7fw52nfvd.jp
 0.0.0.0	xn--ngbcrg3b.com
@@ -90080,10 +90071,7 @@
 0.0.0.0	xn--turkye-gov-tr-69b.com
 0.0.0.0	xn--unicit-gva.fr
 0.0.0.0	xn--w9q675dm1p7em.net
-0.0.0.0	xn--wxtr9fwyxk9c.xn--fiqs8s
-0.0.0.0	xn--wxtr9fwyxk9co4hbua.xn--fiqs8s
 0.0.0.0	xn--xhq326aj6yqpw.com
-0.0.0.0	xn--xovu0bk36c.xn--6qq986b3xl
 0.0.0.0	xn--ygba1c.wtf
 0.0.0.0	xn--yzbrm-frsat-5zbe.shop
 0.0.0.0	xn--z9j635l1gs.jp

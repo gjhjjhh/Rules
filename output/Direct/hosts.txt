@@ -1,6 +1,6 @@
 # Title: Hosts 规则
 # Description: 系统Hosts文件
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 127.0.0.1	localhost
@@ -2671,7 +2671,6 @@
 0.0.0.0	qq.com
 0.0.0.0	qq.design
 0.0.0.0	qq.wang
-0.0.0.0	qq.xn--fiqs8s
 0.0.0.0	qq163.com
 0.0.0.0	qq163.net
 0.0.0.0	qqddc.com
@@ -3438,9 +3437,6 @@
 0.0.0.0	xjoycity.com
 0.0.0.0	xmcdn.com
 0.0.0.0	xmhouse.com
-0.0.0.0	xn--fiq53l6wcx3kp9bc7joo6apn8a.xn--fiqs8s
-0.0.0.0	xn--kprv4ewxfr9cpxcc7joo6apn8a.xn--fiqs8s
-0.0.0.0	xn--r70as2s.xn--fiqs8s
 0.0.0.0	xnpic.com
 0.0.0.0	xoyo.com
 0.0.0.0	xpgod.com

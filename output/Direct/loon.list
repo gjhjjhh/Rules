@@ -1,6 +1,6 @@
 #!name=Loon 规则
 #!desc=适用于Loon
-#!date=2025-07-14 18:18:13 UTC+8
+#!date=2025-07-14 19:12:57 UTC+8
 #!homepage=https://github.com/gjhjjhh/Rules
 DOMAIN-SUFFIX,00cdn.com
 DOMAIN-SUFFIX,0123456789.com
@@ -2667,7 +2667,6 @@ DOMAIN-SUFFIX,qq.cn.com
 DOMAIN-SUFFIX,qq.com
 DOMAIN-SUFFIX,qq.design
 DOMAIN-SUFFIX,qq.wang
-DOMAIN-SUFFIX,qq.xn--fiqs8s
 DOMAIN-SUFFIX,qq163.com
 DOMAIN-SUFFIX,qq163.net
 DOMAIN-SUFFIX,qqddc.com
@@ -3434,9 +3433,6 @@ DOMAIN-SUFFIX,xjietiao.com
 DOMAIN-SUFFIX,xjoycity.com
 DOMAIN-SUFFIX,xmcdn.com
 DOMAIN-SUFFIX,xmhouse.com
-DOMAIN-SUFFIX,xn--fiq53l6wcx3kp9bc7joo6apn8a.xn--fiqs8s
-DOMAIN-SUFFIX,xn--kprv4ewxfr9cpxcc7joo6apn8a.xn--fiqs8s
-DOMAIN-SUFFIX,xn--r70as2s.xn--fiqs8s
 DOMAIN-SUFFIX,xnpic.com
 DOMAIN-SUFFIX,xoyo.com
 DOMAIN-SUFFIX,xpgod.com

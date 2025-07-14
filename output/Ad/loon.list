@@ -1,6 +1,6 @@
 #!name=Loon 规则
 #!desc=适用于Loon
-#!date=2025-07-14 18:18:13 UTC+8
+#!date=2025-07-14 19:12:57 UTC+8
 #!homepage=https://github.com/gjhjjhh/Rules
 DOMAIN-SUFFIX,0001-metrics1-data-hicloud-com.geac.dbankedge.cn
 DOMAIN-SUFFIX,0001-metrics1-drcn-dt-dbankcloud-cn.geac.dbankedge.cn
@@ -27620,7 +27620,6 @@ DOMAIN-SUFFIX,dressesanddinosaurs.com
 DOMAIN-SUFFIX,dressingreviewer.xyz
 DOMAIN-SUFFIX,drevonatursja.click
 DOMAIN-SUFFIX,drewpickles.com
-DOMAIN-SUFFIX,drexilon.xn--q9jyb4c
 DOMAIN-SUFFIX,driasstichos.top
 DOMAIN-SUFFIX,driect-jabnjk04.com
 DOMAIN-SUFFIX,dried-delivery.com
@@ -90029,17 +90028,11 @@ DOMAIN-SUFFIX,xmrpool.net
 DOMAIN-SUFFIX,xmrpxzbf.shop
 DOMAIN-SUFFIX,xmtrading.com
 DOMAIN-SUFFIX,xmtrk.com
-DOMAIN-SUFFIX,xn-----6kcacs9ajdmhcwdcbwwcnbgd13a.xn--p1ai
-DOMAIN-SUFFIX,xn----jtbjfcbdfr0afji4m.xn--p1ai
 DOMAIN-SUFFIX,xn--12cg1cwavsheby0grcyae2puc3c5d.com
-DOMAIN-SUFFIX,xn--2qu92fhtxsxexqab.xn--fiqs8s
-DOMAIN-SUFFIX,xn--2qux23cwrdmnaz3gj3w.xn--fiqs8s
-DOMAIN-SUFFIX,xn--2ss830adjbqy7h.xn--fiqs8s
 DOMAIN-SUFFIX,xn--42c9bsq2d4f7a2a.com
 DOMAIN-SUFFIX,xn--42c9bsq2d4fsbu.com
 DOMAIN-SUFFIX,xn--4dkua4c8143c.jp
 DOMAIN-SUFFIX,xn--80adxhks.art
-DOMAIN-SUFFIX,xn--80affa3aj0al.xn--80asehdb
 DOMAIN-SUFFIX,xn--80ak6aa92e.com
 DOMAIN-SUFFIX,xn--aaexpressdelivery-9rb9i.site
 DOMAIN-SUFFIX,xn--aanacionaldelivery-7ub5j.store
@@ -90050,13 +90043,11 @@ DOMAIN-SUFFIX,xn--bzmsl-buradan-aldn-aaldn-6vdg.com
 DOMAIN-SUFFIX,xn--durhre-yxa.de
 DOMAIN-SUFFIX,xn--e1aqdnq.art
 DOMAIN-SUFFIX,xn--edkc9m807k.jp
-DOMAIN-SUFFIX,xn--g1aclgn5a.xn--p1ai
 DOMAIN-SUFFIX,xn--im-1z5cr40w.top
 DOMAIN-SUFFIX,xn--jor0b302fdhgwnccw8g.com
 DOMAIN-SUFFIX,xn--lgendetektor-dlb.agency
 DOMAIN-SUFFIX,xn--mgbkt9eckr.net
 DOMAIN-SUFFIX,xn--microsoftonlin-e4b.live
-DOMAIN-SUFFIX,xn--n7qz18cpi6a.xn--55qx5d
 DOMAIN-SUFFIX,xn--n8j0la8wb3547bghe.jp
 DOMAIN-SUFFIX,xn--n8jwkyc7fw52nfvd.jp
 DOMAIN-SUFFIX,xn--ngbcrg3b.com
@@ -90076,10 +90067,7 @@ DOMAIN-SUFFIX,xn--sonfrstindirm-69b.shop
 DOMAIN-SUFFIX,xn--turkye-gov-tr-69b.com
 DOMAIN-SUFFIX,xn--unicit-gva.fr
 DOMAIN-SUFFIX,xn--w9q675dm1p7em.net
-DOMAIN-SUFFIX,xn--wxtr9fwyxk9c.xn--fiqs8s
-DOMAIN-SUFFIX,xn--wxtr9fwyxk9co4hbua.xn--fiqs8s
 DOMAIN-SUFFIX,xn--xhq326aj6yqpw.com
-DOMAIN-SUFFIX,xn--xovu0bk36c.xn--6qq986b3xl
 DOMAIN-SUFFIX,xn--ygba1c.wtf
 DOMAIN-SUFFIX,xn--yzbrm-frsat-5zbe.shop
 DOMAIN-SUFFIX,xn--z9j635l1gs.jp

@@ -1,6 +1,6 @@
 # Title: Hosts 规则
 # Description: 系统Hosts文件
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 127.0.0.1	localhost
@@ -2143,8 +2143,6 @@
 0.0.0.0	apple.tw
 0.0.0.0	apple.uk
 0.0.0.0	apple.us
-0.0.0.0	apple.xn--czr694b
-0.0.0.0	apple.xn--fiqs8s
 0.0.0.0	apple.xyz
 0.0.0.0	appleaccount.net
 0.0.0.0	appleafrica.com
@@ -20331,7 +20329,6 @@
 0.0.0.0	nike.host
 0.0.0.0	nike.shop
 0.0.0.0	nike.us
-0.0.0.0	nike.xn--hxt814e
 0.0.0.0	nike0594.com
 0.0.0.0	nike23.com
 0.0.0.0	nikeadidas.com
@@ -31989,7 +31986,6 @@
 0.0.0.0	xn--4vq477m.com
 0.0.0.0	xn--6eup7j.com
 0.0.0.0	xn--6eup7j.net
-0.0.0.0	xn--74q035i.xn--hxt814e
 0.0.0.0	xn--74q434dwff.com
 0.0.0.0	xn--74q434dwff.net
 0.0.0.0	xn--7hv594h.com
@@ -32003,38 +31999,30 @@
 0.0.0.0	xn--cck4d8b3009a.com
 0.0.0.0	xn--colegsirgr-c5a.ac.uk
 0.0.0.0	xn--czq75pvv1aj5c.org
-0.0.0.0	xn--d1acpjx3f.xn--p1ai
 0.0.0.0	xn--d4ty0ojsqzfd.com
-0.0.0.0	xn--fiqs8sxootzz.xn--hxt814e
 0.0.0.0	xn--flw351e.com
 0.0.0.0	xn--ggle-55da.com
 0.0.0.0	xn--gmq348bujlxrb.com
 0.0.0.0	xn--gmq92kd2rm1kx34a.com
 0.0.0.0	xn--gogl-0nd52e.com
 0.0.0.0	xn--gogl-1nd42e.com
-0.0.0.0	xn--gtvq61aiijy0b.xn--hxt814e
 0.0.0.0	xn--gtvz22d.wang
-0.0.0.0	xn--gtvz22d.xn--hxt814e
 0.0.0.0	xn--hb4aw0g.com
 0.0.0.0	xn--hckl3e1e8a8ajin0czf.net
 0.0.0.0	xn--hhr917d3fecva.xyz
-0.0.0.0	xn--hxtr4rozx.xn--czr694b
 0.0.0.0	xn--i2ru8q2qg.com
-0.0.0.0	xn--kput3imi374g.xn--hxt814e
 0.0.0.0	xn--m1abbbgjah.lol
 0.0.0.0	xn--mts47c3w9b1qr.net
 0.0.0.0	xn--mtswd61ejxq.com
 0.0.0.0	xn--ngstr-lra8j.com
 0.0.0.0	xn--noss43i.com
 0.0.0.0	xn--oiq.cc
-0.0.0.0	xn--p8j9a0d9c9a.xn--q9jyb4c
 0.0.0.0	xn--pearsonenespaol-brb.com
 0.0.0.0	xn--q41am8x.com
 0.0.0.0	xn--qhrx81fxh2a.xn--55qx5d.hk
 0.0.0.0	xn--qoq462m.com
 0.0.0.0	xn--r8jwklh769h2mc880dk1o431a.com
 0.0.0.0	xn--r8jwklh769hk43amcfoyl3z3a.com
-0.0.0.0	xn--ruq8a011kt6y.xn--hxt814e
 0.0.0.0	xn--sgt856gbjl.cc
 0.0.0.0	xn--sjqr38j.com
 0.0.0.0	xn--tkry91n.com

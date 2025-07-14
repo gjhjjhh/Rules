@@ -1,6 +1,6 @@
 # Title: QuantumultX 规则
 # Description: 适用于QuantumultX
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 host-suffix,0001-metrics1-data-hicloud-com.geac.dbankedge.cn,reject
@@ -27621,7 +27621,6 @@ host-suffix,dressesanddinosaurs.com,reject
 host-suffix,dressingreviewer.xyz,reject
 host-suffix,drevonatursja.click,reject
 host-suffix,drewpickles.com,reject
-host-suffix,drexilon.xn--q9jyb4c,reject
 host-suffix,driasstichos.top,reject
 host-suffix,driect-jabnjk04.com,reject
 host-suffix,dried-delivery.com,reject
@@ -90030,17 +90029,11 @@ host-suffix,xmrpool.net,reject
 host-suffix,xmrpxzbf.shop,reject
 host-suffix,xmtrading.com,reject
 host-suffix,xmtrk.com,reject
-host-suffix,xn-----6kcacs9ajdmhcwdcbwwcnbgd13a.xn--p1ai,reject
-host-suffix,xn----jtbjfcbdfr0afji4m.xn--p1ai,reject
 host-suffix,xn--12cg1cwavsheby0grcyae2puc3c5d.com,reject
-host-suffix,xn--2qu92fhtxsxexqab.xn--fiqs8s,reject
-host-suffix,xn--2qux23cwrdmnaz3gj3w.xn--fiqs8s,reject
-host-suffix,xn--2ss830adjbqy7h.xn--fiqs8s,reject
 host-suffix,xn--42c9bsq2d4f7a2a.com,reject
 host-suffix,xn--42c9bsq2d4fsbu.com,reject
 host-suffix,xn--4dkua4c8143c.jp,reject
 host-suffix,xn--80adxhks.art,reject
-host-suffix,xn--80affa3aj0al.xn--80asehdb,reject
 host-suffix,xn--80ak6aa92e.com,reject
 host-suffix,xn--aaexpressdelivery-9rb9i.site,reject
 host-suffix,xn--aanacionaldelivery-7ub5j.store,reject
@@ -90051,13 +90044,11 @@ host-suffix,xn--bzmsl-buradan-aldn-aaldn-6vdg.com,reject
 host-suffix,xn--durhre-yxa.de,reject
 host-suffix,xn--e1aqdnq.art,reject
 host-suffix,xn--edkc9m807k.jp,reject
-host-suffix,xn--g1aclgn5a.xn--p1ai,reject
 host-suffix,xn--im-1z5cr40w.top,reject
 host-suffix,xn--jor0b302fdhgwnccw8g.com,reject
 host-suffix,xn--lgendetektor-dlb.agency,reject
 host-suffix,xn--mgbkt9eckr.net,reject
 host-suffix,xn--microsoftonlin-e4b.live,reject
-host-suffix,xn--n7qz18cpi6a.xn--55qx5d,reject
 host-suffix,xn--n8j0la8wb3547bghe.jp,reject
 host-suffix,xn--n8jwkyc7fw52nfvd.jp,reject
 host-suffix,xn--ngbcrg3b.com,reject
@@ -90077,10 +90068,7 @@ host-suffix,xn--sonfrstindirm-69b.shop,reject
 host-suffix,xn--turkye-gov-tr-69b.com,reject
 host-suffix,xn--unicit-gva.fr,reject
 host-suffix,xn--w9q675dm1p7em.net,reject
-host-suffix,xn--wxtr9fwyxk9c.xn--fiqs8s,reject
-host-suffix,xn--wxtr9fwyxk9co4hbua.xn--fiqs8s,reject
 host-suffix,xn--xhq326aj6yqpw.com,reject
-host-suffix,xn--xovu0bk36c.xn--6qq986b3xl,reject
 host-suffix,xn--ygba1c.wtf,reject
 host-suffix,xn--yzbrm-frsat-5zbe.shop,reject
 host-suffix,xn--z9j635l1gs.jp,reject

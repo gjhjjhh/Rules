@@ -1,6 +1,6 @@
 // Title: Singbox 规则集
 // Description: 适用于Singbox v3
-// Time: 2025-07-14 18:18:13 UTC+8
+// Time: 2025-07-14 19:12:57 UTC+8
 // Homepage: https://github.com/gjhjjhh/Rules
 //
 {
@@ -2673,7 +2673,6 @@
         "qq.com",
         "qq.design",
         "qq.wang",
-        "qq.xn--fiqs8s",
         "qq163.com",
         "qq163.net",
         "qqddc.com",
@@ -3440,9 +3439,6 @@
         "xjoycity.com",
         "xmcdn.com",
         "xmhouse.com",
-        "xn--fiq53l6wcx3kp9bc7joo6apn8a.xn--fiqs8s",
-        "xn--kprv4ewxfr9cpxcc7joo6apn8a.xn--fiqs8s",
-        "xn--r70as2s.xn--fiqs8s",
         "xnpic.com",
         "xoyo.com",
         "xpgod.com",

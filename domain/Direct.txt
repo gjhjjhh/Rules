@@ -2663,7 +2663,6 @@ qq.cn.com
 qq.com
 qq.design
 qq.wang
-qq.xn--fiqs8s
 qq163.com
 qq163.net
 qqddc.com
@@ -3430,9 +3429,6 @@ xjietiao.com
 xjoycity.com
 xmcdn.com
 xmhouse.com
-xn--fiq53l6wcx3kp9bc7joo6apn8a.xn--fiqs8s
-xn--kprv4ewxfr9cpxcc7joo6apn8a.xn--fiqs8s
-xn--r70as2s.xn--fiqs8s
 xnpic.com
 xoyo.com
 xpgod.com

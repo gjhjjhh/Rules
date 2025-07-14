@@ -1,6 +1,6 @@
 # Title: QuantumultX 规则
 # Description: 适用于QuantumultX
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 host-suffix,000webhost.com,reject
@@ -2140,8 +2140,6 @@ host-suffix,apple.tt,reject
 host-suffix,apple.tw,reject
 host-suffix,apple.uk,reject
 host-suffix,apple.us,reject
-host-suffix,apple.xn--czr694b,reject
-host-suffix,apple.xn--fiqs8s,reject
 host-suffix,apple.xyz,reject
 host-suffix,appleaccount.net,reject
 host-suffix,appleafrica.com,reject
@@ -20328,7 +20326,6 @@ host-suffix,nike.hk,reject
 host-suffix,nike.host,reject
 host-suffix,nike.shop,reject
 host-suffix,nike.us,reject
-host-suffix,nike.xn--hxt814e,reject
 host-suffix,nike0594.com,reject
 host-suffix,nike23.com,reject
 host-suffix,nikeadidas.com,reject
@@ -31986,7 +31983,6 @@ host-suffix,xn--4vq475g.com,reject
 host-suffix,xn--4vq477m.com,reject
 host-suffix,xn--6eup7j.com,reject
 host-suffix,xn--6eup7j.net,reject
-host-suffix,xn--74q035i.xn--hxt814e,reject
 host-suffix,xn--74q434dwff.com,reject
 host-suffix,xn--74q434dwff.net,reject
 host-suffix,xn--7hv594h.com,reject
@@ -32000,38 +31996,30 @@ host-suffix,xn--av-o44ep1d.com,reject
 host-suffix,xn--cck4d8b3009a.com,reject
 host-suffix,xn--colegsirgr-c5a.ac.uk,reject
 host-suffix,xn--czq75pvv1aj5c.org,reject
-host-suffix,xn--d1acpjx3f.xn--p1ai,reject
 host-suffix,xn--d4ty0ojsqzfd.com,reject
-host-suffix,xn--fiqs8sxootzz.xn--hxt814e,reject
 host-suffix,xn--flw351e.com,reject
 host-suffix,xn--ggle-55da.com,reject
 host-suffix,xn--gmq348bujlxrb.com,reject
 host-suffix,xn--gmq92kd2rm1kx34a.com,reject
 host-suffix,xn--gogl-0nd52e.com,reject
 host-suffix,xn--gogl-1nd42e.com,reject
-host-suffix,xn--gtvq61aiijy0b.xn--hxt814e,reject
 host-suffix,xn--gtvz22d.wang,reject
-host-suffix,xn--gtvz22d.xn--hxt814e,reject
 host-suffix,xn--hb4aw0g.com,reject
 host-suffix,xn--hckl3e1e8a8ajin0czf.net,reject
 host-suffix,xn--hhr917d3fecva.xyz,reject
-host-suffix,xn--hxtr4rozx.xn--czr694b,reject
 host-suffix,xn--i2ru8q2qg.com,reject
-host-suffix,xn--kput3imi374g.xn--hxt814e,reject
 host-suffix,xn--m1abbbgjah.lol,reject
 host-suffix,xn--mts47c3w9b1qr.net,reject
 host-suffix,xn--mtswd61ejxq.com,reject
 host-suffix,xn--ngstr-lra8j.com,reject
 host-suffix,xn--noss43i.com,reject
 host-suffix,xn--oiq.cc,reject
-host-suffix,xn--p8j9a0d9c9a.xn--q9jyb4c,reject
 host-suffix,xn--pearsonenespaol-brb.com,reject
 host-suffix,xn--q41am8x.com,reject
 host-suffix,xn--qhrx81fxh2a.xn--55qx5d.hk,reject
 host-suffix,xn--qoq462m.com,reject
 host-suffix,xn--r8jwklh769h2mc880dk1o431a.com,reject
 host-suffix,xn--r8jwklh769hk43amcfoyl3z3a.com,reject
-host-suffix,xn--ruq8a011kt6y.xn--hxt814e,reject
 host-suffix,xn--sgt856gbjl.cc,reject
 host-suffix,xn--sjqr38j.com,reject
 host-suffix,xn--tkry91n.com,reject

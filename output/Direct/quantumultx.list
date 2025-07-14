@@ -1,6 +1,6 @@
 # Title: QuantumultX 规则
 # Description: 适用于QuantumultX
-# Time: 2025-07-14 18:18:13 UTC+8
+# Time: 2025-07-14 19:12:57 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 host-suffix,00cdn.com,reject
@@ -2668,7 +2668,6 @@ host-suffix,qq.cn.com,reject
 host-suffix,qq.com,reject
 host-suffix,qq.design,reject
 host-suffix,qq.wang,reject
-host-suffix,qq.xn--fiqs8s,reject
 host-suffix,qq163.com,reject
 host-suffix,qq163.net,reject
 host-suffix,qqddc.com,reject
@@ -3435,9 +3434,6 @@ host-suffix,xjietiao.com,reject
 host-suffix,xjoycity.com,reject
 host-suffix,xmcdn.com,reject
 host-suffix,xmhouse.com,reject
-host-suffix,xn--fiq53l6wcx3kp9bc7joo6apn8a.xn--fiqs8s,reject
-host-suffix,xn--kprv4ewxfr9cpxcc7joo6apn8a.xn--fiqs8s,reject
-host-suffix,xn--r70as2s.xn--fiqs8s,reject
 host-suffix,xnpic.com,reject
 host-suffix,xoyo.com,reject
 host-suffix,xpgod.com,reject
