@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+"""确保所有输入输出路径正确"""
+import os
+import json
+import subprocess
+from datetime import datetime
+from pathlib import Path
+
+# 配置：使用绝对路径基准，避免相对路径混乱
+BASE_DIR = Path(__file__).parent  # 脚本所在目录作为基准
+DOMAIN_DIR = BASE_DIR / "domain"  # 输入域名目录（绝对路径）
+OUTPUT_ROOT = BASE_DIR / "formatted_rules"  # 输出目录（绝对路径）
+REPO_URL = "https://github.com/your-repo"
+SOURCE_RULE = "公开规则集合"
+
+# 格式配置（保持不变）
+FORMAT_CONFIG = {
+    "singbox": {
+        "suffix": ".json",
+        "comment": "//",
+        "title": "AdBlock Singbox",
+        "desc": "适用于Singbox的域名拦截规则（v3规范）",
+        "convert": lambda domains: {
+            "version": 3,
+            "rules": [{"domain_suffix": domains}]
+        }
+    },
+    "adblock": {
+        "suffix": ".txt",
+        "comment": "!",
+        "title": "AdBlock Standard",
+        "desc": "适用于通用Adblock协议",
+        "convert": lambda domains: [f"||{d}^" for d in domains]
+    },
+    "adguard": {
+        "suffix": ".txt",
+        "comment": "!",
+        "title": "AdBlock AdGuardHome",
+        "desc": "适用于AdGuard/AdGuardHome",
+        "convert": lambda domains: [f"||{d}^" for d in domains]
+    },
+    "dnsmasq": {
+        "suffix": ".conf",
+        "comment": "#",
+        "title": "AdBlock DNSMasq",
+        "desc": "适用于DNSMasq",
+        "convert": lambda domains: [f"local=/{d}/" for d in domains]
+    },
+    "hosts": {
+        "suffix": ".txt",
+        "comment": "#",
+        "title": "AdBlock Hosts",
+        "desc": "适用于系统Hosts",
+        "convert": lambda domains: ["127.0.0.1\tlocalhost", "0.0.0.0\t0.0.0.0", ""] + [f"0.0.0.0\t{d}" for d in domains]
+    },
+    "quantumultx": {
+        "suffix": ".list",
+        "comment": "#",
+        "title": "AdBlock QuantumultX",
+        "desc": "适用于QuantumultX",
+        "convert": lambda domains: [f"host-suffix,{d},reject" for d in domains]
+    },
+    "loon": {
+        "suffix": ".list",
+        "comment": "#",
+        "title": "AdBlock Loon",
+        "desc": "适用于Loon",
+        "convert": lambda domains: [f"DOMAIN-SUFFIX,{d}" for d in domains],
+        "special_header": True
+    },
+    "mihomo": {
+        "suffix": ".yaml",
+        "comment": "#",
+        "title": "AdBlock Mihomo",
+        "desc": "适用于Clash Meta",
+        "convert": lambda domains: ["payload:"] + [f"  - '+.{d}'" for d in domains]
+    }
+}
+
+# 确保输出目录存在（使用绝对路径）
+OUTPUT_ROOT.mkdir(exist_ok=True)
+
+
+def get_meta():
+    """获取元数据"""
+    try:
+        version = subprocess.check_output(
+            ['git', 'describe', '--abbrev=0', '--tags'],
+            stderr=subprocess.STDOUT,
+            cwd=BASE_DIR  # 明确指定仓库目录
+        ).strip().decode() or "unknown"
+    except:
+        version = "unknown"
+    return {
+        "version": version,
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " UTC+8",
+        "repo": REPO_URL
+    }
+
+
+def read_domains(file_path: Path) -> list:
+    """读取域名文件（使用绝对路径）"""
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return list(set([line.strip() for line in f if line.strip()]))
+
+
+def process_file(file_path: Path, meta: dict):
+    """处理单个文件（确保路径正确）"""
+    domains = read_domains(file_path)
+    if not domains:
+        print(f"跳过空文件: {file_path}")
+        return
+
+    # 规则组名称（文件名，不含后缀）
+    group_name = file_path.stem
+    # 输出子目录：formatted_rules/[规则组名称]
+    group_out_dir = OUTPUT_ROOT / group_name
+    group_out_dir.mkdir(exist_ok=True)
+    print(f"\n处理规则组: {group_name} (域名数: {len(domains)})")
+
+    for fmt_name, fmt in FORMAT_CONFIG.items():
+        # 生成对应格式的规则
+        rules = fmt["convert"](domains)
+        # 计算规则数量
+        total = len(rules["rules"][0]["domain_suffix"]) if fmt_name == "singbox" else len(rules)
+        # 输出文件路径：formatted_rules/[规则组名称]/[格式名].[后缀]
+        output_file = group_out_dir / f"{fmt_name}{fmt['suffix']}"
+
+        # 构建头部注释
+        header = []
+        comment = fmt["comment"]
+        if fmt.get("special_header"):
+            header = [
+                f"#!name={fmt['title']}",
+                f"#!desc={fmt['desc']} | 规则数: {total}",
+                f"#!homepage={meta['repo']}",
+                f"#!date={meta['time']}",
+                ""
+            ]
+        else:
+            header = [
+                f"{comment}{fmt['title']}",
+                f"{comment}描述: {fmt['desc']}",
+                f"{comment}版本: {meta['version']}",
+                f"{comment}更新时间: {meta['time']}",
+                f"{comment}规则数: {total}",
+                f"{comment}",
+                ""
+            ]
+
+        # 写入文件（确保路径正确）
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(header))
+                if fmt_name == "singbox":
+                    json.dump(rules, f, indent=2, ensure_ascii=False)
+                else:
+                    f.write('\n'.join(rules))
+            print(f"生成文件: {output_file.relative_to(BASE_DIR)}")  # 显示相对路径，便于调试
+        except Exception as e:
+            print(f"生成{fmt_name}失败: {e}")
+
+
+def main():
+    meta = get_meta()
+    # 检查输入目录是否存在（绝对路径）
+    if not DOMAIN_DIR.exists():
+        print(f"错误: 输入目录不存在 - {DOMAIN_DIR}")
+        return
+
+    # 遍历domain目录下的所有.txt文件（绝对路径）
+    for file in DOMAIN_DIR.glob("*.txt"):
+        if file.is_file():
+            process_file(file, meta)
+    
+    print(f"\n所有规则生成完成，输出目录: {OUTPUT_ROOT.relative_to(BASE_DIR)}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n用户中断操作")

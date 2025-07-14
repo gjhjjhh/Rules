@@ -1,0 +1,6 @@
+{
+    "Ad": [
+        "https://raw.githubusercontent.com/217heidai/adblockfilters/refs/heads/main/rules/white.txt",
+        "https://raw.githubusercontent.com/Cats-Team/AdRules/refs/heads/script/script/allowlist.txt"
+    ]
+}
