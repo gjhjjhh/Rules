@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 从links.txt读取规则链接，结合white_links.txt白名单，处理为纯domain格式并输出到domain目录
-优化版：增强格式支持，专注域名提取，优化大文件处理
+优化版：多线程下载链接，增强稳定性
 """
 import re
 import sys
@@ -19,7 +19,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 CHUNK_SIZE = 100_000
 MAX_DOMAIN_LENGTH = 253
 WORKER_COUNT = min(mp.cpu_count() * 2, 8)
-DOWNLOAD_WORKERS = min(mp.cpu_count(), 4)
+DOWNLOAD_WORKERS = min(mp.cpu_count(), 4)  # 规则组下载线程数
+RULEGROUP_WORKERS = min(mp.cpu_count(), 4)  # 规则组处理线程数
 TIMEOUT = 30
 RETRY_COUNT = 2
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -145,7 +146,7 @@ def download(url: str, is_whitelist: bool = False) -> Tuple[List[str], int]:
                 
                 content_length = int(res.headers.get('Content-Length', 0))
                 if is_whitelist and content_length > MAX_WHITELIST_SIZE:
-                    log(f"跳过大文件白名单 {url} ({content_length/1024/1024:.1f}MB > {MAX_WHITELIST_SIZE/1024/1024}MB)")
+                    log(f"跳过大文件白名单 {url} ({content_length/1024/1024:.1f}MB)")
                     return [], 0
                 
                 # 处理YAML格式
@@ -158,7 +159,6 @@ def download(url: str, is_whitelist: bool = False) -> Tuple[List[str], int]:
                         # 处理纯文本格式的YAML
                         else:
                             lines = res.text.splitlines()
-                        log(f"{'白名单' if is_whitelist else ''}下载YAML成功 {url} | {len(lines):,} 项")
                         return lines, len(lines)
                     except yaml.YAMLError:
                         lines = res.text.splitlines()
@@ -166,14 +166,13 @@ def download(url: str, is_whitelist: bool = False) -> Tuple[List[str], int]:
                 
                 # 处理文本格式
                 lines = res.text.splitlines()
-                log(f"{'白名单' if is_whitelist else ''}下载成功 {url} | {len(lines):,} 行")
                 return lines, len(lines)
         except Exception as e:
             if attempt < RETRY_COUNT:
                 time.sleep(2**attempt)
             else:
-                if not is_whitelist:  # 仅记录主规则错误
-                    log(f"{'白名单' if is_whitelist else ''}下载失败 {url}: {str(e)[:100]}", critical=True)
+                if not is_whitelist:
+                    log(f"下载失败 {url}: {str(e)[:100]}", critical=True)
                 return [], 0
 
 
@@ -244,13 +243,26 @@ def remove_subdomains(domains: Set[str]) -> Set[str]:
     return keep
 
 
-# 主处理模块（安全高效版）
-def process_group(lines: List[str], output_path: Path, whitelist: dict) -> None:
-    """处理单个规则组"""
-    log(f"处理规则: {output_path.name}")
-    if not lines:
+# 处理单个规则组
+def process_rule_group(name: str, urls: List[str], whitelist: dict, output_dir: Path) -> None:
+    """处理单个规则组（线程安全）"""
+    sanitized = sanitize(name)
+    if not sanitized:
         return
 
+    output_path = output_dir / f"{sanitized}.txt"
+    log(f"\n===== 处理规则组: {name} -> {output_path.name} =====")
+
+    # 下载规则内容
+    lines = []
+    total_lines = 0
+    for url in urls:
+        l, cnt = download(url)
+        lines.extend(l)
+        total_lines += cnt
+
+    log(f"规则组[{name}]下载完成 | 共 {total_lines:,} 行")
+    
     # 提取原始域名
     raw = set()
     for domain in parallel_process(lines):
@@ -311,26 +323,31 @@ def main():
     # 加载白名单（安全处理）
     whitelist = load_whitelist()
 
-    # 处理所有规则组
-    for name, urls in rules.items():
-        if not isinstance(urls, list) or not urls:
-            continue
+    # 使用线程池处理规则组
+    log(f"开始处理 {len(rules)} 个规则组，使用 {RULEGROUP_WORKERS} 线程")
+    
+    with ThreadPoolExecutor(max_workers=RULEGROUP_WORKERS) as executor:
+        futures = []
+        for name, urls in rules.items():
+            if not isinstance(urls, list) or not urls:
+                continue
+            
+            # 提交任务到线程池
+            future = executor.submit(
+                process_rule_group, 
+                name, 
+                urls, 
+                whitelist, 
+                output_dir
+            )
+            futures.append(future)
         
-        sanitized = sanitize(name)
-        if not sanitized:
-            continue
-
-        output_path = output_dir / f"{sanitized}.txt"
-        log(f"\n===== 处理规则组: {name} -> {output_path.name} =====")
-
-        # 下载规则内容
-        lines = []
-        for url in urls:
-            l, _ = download(url)
-            lines.extend(l)
-
-        log(f"规则组[{name}]下载完成 | 共 {len(lines):,} 行")
-        process_group(lines, output_path, whitelist)
+        # 等待所有任务完成
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                log(f"规则组处理错误: {str(e)[:200]}", critical=True)
 
     log("\n所有规则处理完毕")
 
