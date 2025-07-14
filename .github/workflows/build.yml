@@ -89,11 +89,17 @@ jobs:
             # 创建提交
             git commit -m "🚀 CI Updated - $(date +'%Y-%m-%d %H:%M')" --no-verify
             
-            # 强制推送（安全，因为我们是唯一修改者）
+            # 推送变更
             git push origin build --force --no-progress --no-verify
           else
             echo "没有变更需要提交"
           fi
+
+      - name: 删除远程build分支
+        run: |
+          # 尝试删除远程build分支，忽略分支不存在的错误
+          git push origin --delete build || true
+        continue-on-error: true  # 即使删除失败也不影响整个工作流
 
       - name: 清理旧工作流
         uses: Mattraks/delete-workflow-runs@main
