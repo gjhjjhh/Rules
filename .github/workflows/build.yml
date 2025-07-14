@@ -19,52 +19,59 @@ jobs:
       - uses: actions/checkout@v3  # 保持原checkout版本
 
       # 替换为指定的中间过程步骤
-      - name: 安装依赖
+      - name: install requirements
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 运行main.py生成domain目录
+      - name: Run collect.py
         run: |
           echo "生成原始域名文件..."
           python collect.py
           echo "domain目录生成完成"
 
-      - name: 运行convert_formats.py生成output目录
+      - name: Run transform.py
         run: |
           echo "转换格式生成output目录..."
           python transform.py
           echo "output目录结构："
           tree output
 
-      - name: 编译Singbox/Mihomo规则
+      - name: Run Singbox/Mihomo  in parallel
         run: |
-          # 编译Singbox
-          find ./output -name "singbox.json" | while read json_file; do
-            (cd $(dirname $json_file) && \
+          # 使用并行编译提高效率
+          compile_singbox() {
+            json_file=$1
+            dir=$(dirname $json_file)
+            (cd $dir && \
               wget -q https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz -O sing-box.tar.gz && \
               tar -xzf sing-box.tar.gz && \
               ./*/sing-box rule-set compile singbox.json && \
               rm -rf sing-box.tar.gz */)
-          done
-
-          # 编译Mihomo
-          find ./output -name "mihomo.yaml" | while read yaml_file; do
-            (cd $(dirname $yaml_file) && \
+          }
+          export -f compile_singbox
+          
+          compile_mihomo() {
+            yaml_file=$1
+            dir=$(dirname $yaml_file)
+            (cd $dir && \
               wget -q https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz -O mihomo.gz && \
               gzip -d mihomo.gz && \
               chmod +x mihomo && \
               ./mihomo convert-ruleset domain yaml mihomo.yaml mihomo.mrs && \
               rm -rf mihomo)
-          done
+          }
+          export -f compile_mihomo
+          
+          # 并行编译
+          find ./output -name "singbox.json" | xargs -P 4 -I {} bash -c 'compile_singbox "{}"'
+          find ./output -name "mihomo.yaml" | xargs -P 4 -I {} bash -c 'compile_mihomo "{}"'
 
-      # 保留原自动提交推送步骤
       - name: Commit & Push Changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: 🚀 CI Updated
 
-      # 保留原清理旧工作流步骤
       - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@main
         with:
