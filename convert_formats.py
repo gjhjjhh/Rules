@@ -10,19 +10,22 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-# 路径配置（默认脚本在主目录，domain目录由main.py生成）
+# 路径配置
 BASE_DIR = Path(__file__).resolve().parent  # 库主目录
 DOMAIN_DIR = BASE_DIR / "domain"  # main.py生成的域名目录
 OUTPUT_ROOT = BASE_DIR / "output"  # 输出目录
 
-# 格式配置（保留所有格式）
+# 格式配置（严格按参考示例）
 FORMAT_CONFIG = {
     "singbox": {
         "suffix": ".json",
         "comment": "//",
         "title": "Singbox 规则集",
         "desc": "适用于Singbox v3",
-        "convert": lambda domains: {"version": 3, "rules": [{"domain_suffix": domains}]}
+        "convert": lambda domains: {
+            "version": 3,
+            "rules": [{"domain_suffix": domains}]
+        }
     },
     "adblock": {
         "suffix": ".txt",
@@ -50,7 +53,10 @@ FORMAT_CONFIG = {
         "comment": "#",
         "title": "Hosts 规则",
         "desc": "系统Hosts文件",
-        "convert": lambda domains: ["127.0.0.1\tlocalhost", "0.0.0.0\t0.0.0.0", ""] + [f"0.0.0.0\t{d}" for d in domains]
+        "convert": lambda domains: [
+            "127.0.0.1\tlocalhost",
+            "0.0.0.0\t0.0.0.0",
+            ""] + [f"0.0.0.0\t{d}" for d in domains]
     },
     "quantumultx": {
         "suffix": ".list",
@@ -81,89 +87,111 @@ OUTPUT_ROOT.mkdir(exist_ok=True)
 
 
 def get_meta():
-    """获取元数据"""
-    try:
-        version = subprocess.check_output(
-            ["git", "describe", "--abbrev=0", "--tags"],
-            stderr=subprocess.STDOUT,
-            cwd=BASE_DIR
-        ).strip().decode() or "unknown"
-    except:
-        version = "unknown"
+    """获取元数据（简化版）"""
     return {
-        "version": version,
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC+8"),
-        "repo": "https://github.com/your-repo"
+        "repo": "https://github.com/gjhjjhh/Rules"
     }
 
 
 def read_domains(file_path):
-    """读取域名（去重）"""
-    with open(file_path, "r", encoding="utf-8") as f:
-        return list(set([line.strip() for line in f if line.strip()]))
+    """读取域名（不进行任何处理）"""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        print(f"⚠️ 读取文件错误: {file_path} - {str(e)}")
+        return []
 
 
 def build_header(fmt_info, total, meta):
-    """生成文件头"""
+    """生成文件头（简化版）"""
     comment = fmt_info["comment"]
-    header = []
-    if fmt_info.get("special_header"):
-        header = [
+    if fmt_info.get("special_header"):  # Loon格式特殊头部
+        return [
             f"#!name={fmt_info['title']}",
-            f"#!desc={fmt_info['desc']} | 版本：{meta['version']}",
+            f"#!desc={fmt_info['desc']}",
             f"#!date={meta['time']}",
             f"#!homepage={meta['repo']}",
             ""
         ]
-    else:
-        header = [
-            f"{comment}{fmt_info['title']}",
-            f"{comment}描述：{fmt_info['desc']}",
-            f"{comment}版本：{meta['version']} | 更新时间：{meta['time']}",
-            f"{comment}来源：{meta['repo']}",
+    else:  # 通用头部
+        return [
+            f"{comment} Title: {fmt_info['title']}",
+            f"{comment} Description: {fmt_info['desc']}",
+            f"{comment} Time: {meta['time']}",
+            f"{comment} Homepage: {meta['repo']}",
             f"{comment}",
             ""
         ]
-    return header
 
 
 def process_file(file_path, meta):
     """处理单个域名文件"""
     rule_name = file_path.stem
     domains = read_domains(file_path)
-    if not domains:
-        print(f"⚠️ 跳过空文件：{rule_name}")
-        return
-
+    
+    # 创建输出目录
     out_dir = OUTPUT_ROOT / rule_name
     out_dir.mkdir(exist_ok=True)
     print(f"\n处理规则：{rule_name}（域名数：{len(domains)}）")
 
     for fmt_name, fmt in FORMAT_CONFIG.items():
-        rules = fmt["convert"](domains)
-        total = len(rules["rules"][0]["domain_suffix"]) if fmt_name == "singbox" else len(rules)
+        # 生成输出文件路径
         output_file = out_dir / f"{fmt_name}{fmt['suffix']}"
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write("\n".join(build_header(fmt, total, meta)))
-            if fmt_name == "singbox":
-                json.dump(rules, f, indent=2, ensure_ascii=False)
-            else:
-                f.write("\n".join(rules))
-        print(f"生成：{output_file.relative_to(BASE_DIR)}")
+        
+        try:
+            with open(output_file, "w", encoding="utf-8") as f:
+                # 写入文件头
+                header = build_header(fmt, len(domains), meta)
+                f.write("\n".join(header))
+                
+                # 写入规则内容
+                if fmt_name == "singbox":
+                    # Singbox使用JSON格式
+                    rules = fmt["convert"](domains)
+                    json.dump(rules, f, indent=2, ensure_ascii=False)
+                else:
+                    # 其他格式直接写入文本行
+                    rules = fmt["convert"](domains)
+                    f.write("\n".join(rules))
+            
+            print(f"✓ 生成: {output_file.relative_to(BASE_DIR)}")
+        except Exception as e:
+            print(f"⚠️ 生成文件错误: {output_file} - {str(e)}")
 
 
 def main():
+    print("="*50)
+    print("域名规则格式转换工具")
+    print("="*50)
+    
+    # 获取元数据
     meta = get_meta()
-    # 直接处理domain目录下的txt文件（默认存在）
+    print(f"开始时间: {meta['time']}")
+    print(f"仓库地址: {meta['repo']}")
+    
+    # 确保domain目录存在
+    if not DOMAIN_DIR.exists():
+        print(f"⚠️ 错误: 目录不存在 - {DOMAIN_DIR}")
+        return
+    
+    # 处理domain目录下的所有txt文件
+    processed = 0
     for file in DOMAIN_DIR.glob("*.txt"):
         if file.is_file():
             process_file(file, meta)
-    print(f"\n完成，输出目录：{OUTPUT_ROOT.relative_to(BASE_DIR)}")
+            processed += 1
+    
+    print("\n" + "="*50)
+    print(f"处理完成! 共处理 {processed} 个规则文件")
+    print(f"输出目录: {OUTPUT_ROOT.relative_to(BASE_DIR)}")
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n用户中断")
+        print("\n操作已取消")
+    except Exception as e:
+        print(f"严重错误: {str(e)}")
