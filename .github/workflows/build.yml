@@ -1,4 +1,4 @@
-name: 生成规则文件到output目录
+name: Rules Maker
 
 on:
   push:
@@ -6,23 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-rules:
+  generate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 添加内容写入权限
+      contents: write
     env:
-      WORKSPACE: ${{ github.workspace }}
+      TZ: Asia/Shanghai
 
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 显示目录结构
-        run: |
-          echo "当前仓库根目录文件："
-          ls -la $WORKSPACE
-
-      - name: 配置Python环境
+      - name: 配置Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -35,46 +30,30 @@ jobs:
 
       - name: 运行main.py生成domain目录
         run: |
-          echo "=== 生成原始域名文件 ==="
-          if [ ! -f "$WORKSPACE/main.py" ]; then
-            echo "❌ 错误：$WORKSPACE/main.py不存在"
-            exit 1
-          fi
-          python $WORKSPACE/main.py
-          if [ ! -d "$WORKSPACE/domain" ]; then
-            echo "❌ 错误：未生成domain目录"
-            exit 1
-          fi
-          echo "✅ domain目录生成成功"
+          echo "生成原始域名文件..."
+          python main.py  # 直接执行（确认存在）
+          echo "domain目录生成完成"
 
       - name: 运行convert_formats.py生成output目录
         run: |
-          echo "=== 生成output目录规则 ==="
-          if [ ! -f "$WORKSPACE/convert_formats.py" ]; then
-            echo "❌ 错误：$WORKSPACE/convert_formats.py不存在"
-            exit 1
-          fi
-          python $WORKSPACE/convert_formats.py
-          if [ ! -d "$WORKSPACE/output" ]; then
-            echo "❌ 错误：未生成output目录"
-            exit 1
-          fi
-          echo "✅ output目录结构："
-          tree $WORKSPACE/output
+          echo "转换格式生成output目录..."
+          python convert_formats.py  # 直接执行（确认存在）
+          echo "output目录结构："
+          tree output
 
-      - name: 编译Singbox/Mihomo规则集
+      - name: 编译Singbox/Mihomo规则
         run: |
-          echo "=== 编译规则集 ==="
           # 编译Singbox
-          find $WORKSPACE/output -name "singbox.json" | while read json_file; do
+          find ./output -name "singbox.json" | while read json_file; do
             (cd $(dirname $json_file) && \
               wget -q https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz -O sing-box.tar.gz && \
               tar -xzf sing-box.tar.gz && \
               ./*/sing-box rule-set compile singbox.json && \
               rm -rf sing-box.tar.gz */)
           done
+
           # 编译Mihomo
-          find $WORKSPACE/output -name "mihomo.yaml" | while read yaml_file; do
+          find ./output -name "mihomo.yaml" | while read yaml_file; do
             (cd $(dirname $yaml_file) && \
               wget -q https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz -O mihomo.gz && \
               gzip -d mihomo.gz && \
@@ -83,6 +62,5 @@ jobs:
               rm -rf mihomo)
           done
 
-      - name: 完成提示
-        run: |
-          echo "🎉 规则文件已生成在：$WORKSPACE/output"
+      - name: 完成
+        run: echo "🎉 所有规则已生成在output目录"
