@@ -1,6 +1,6 @@
 # Title: Hosts 规则
 # Description: 系统Hosts文件
-# Time: 2025-07-14 19:12:57 UTC+8
+# Time: 2025-07-14 19:22:06 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 127.0.0.1	localhost

@@ -1,6 +1,6 @@
 # Title: QuantumultX 规则
 # Description: 适用于QuantumultX
-# Time: 2025-07-14 19:12:57 UTC+8
+# Time: 2025-07-14 19:22:06 UTC+8
 # Homepage: https://github.com/gjhjjhh/Rules
 #
 host-suffix,0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa,reject

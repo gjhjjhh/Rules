@@ -1,6 +1,6 @@
 #!name=Loon 规则
 #!desc=适用于Loon
-#!date=2025-07-14 19:12:57 UTC+8
+#!date=2025-07-14 19:22:06 UTC+8
 #!homepage=https://github.com/gjhjjhh/Rules
 DOMAIN-SUFFIX,0001-metrics1-data-hicloud-com.geac.dbankedge.cn
 DOMAIN-SUFFIX,0001-metrics1-drcn-dt-dbankcloud-cn.geac.dbankedge.cn
