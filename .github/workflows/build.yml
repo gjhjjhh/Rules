@@ -9,15 +9,13 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 确保有提交权限
+      contents: write
     env:
       TZ: Asia/Shanghai
 
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
-        with:
-          ref: build  # 明确拉取build分支（生成后推回该分支）
 
       - name: 配置Python
         uses: actions/setup-python@v5
@@ -64,26 +62,16 @@ jobs:
               rm -rf mihomo)
           done
 
+      # 仅添加提交推送步骤，不修改其他内容
       - name: 提交output目录到仓库
         run: |
-          # 配置git身份
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # 拉取最新代码（避免冲突）
-          git pull origin build
-          
-          # 添加生成的output目录
           git add output/
-          
-          # 提交变更
           if git status --porcelain | grep -q .; then
             git commit -m "Auto update rules: $(date +'%Y-%m-%d %H:%M:%S')"
-            git push origin build  # 推送到当前分支（build）
-            echo "✅ 成功提交output目录到build分支"
-          else
-            echo "ℹ️ 无新变更，无需提交"
+            git push origin build
           fi
 
       - name: 完成
-        run: echo "🎉 所有规则已生成并提交到仓库"
+        run: echo "🎉 所有规则已生成在output目录"
