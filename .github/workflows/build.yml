@@ -2,101 +2,70 @@ name: Build Rules
 
 on:
   schedule:
-    - cron: "0 1 * * *"
-  workflow_dispatch:
+    - cron: "0 1 * * *"  # 保持定时触发
+  workflow_dispatch:  # 保持手动触发
 
 env:
-  TZ: Asia/Shanghai
+  TZ: Asia/Shanghai  # 保持时区设置
 
 jobs:
   Build_Rules:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      actions: write
+      contents: write  # 保留写入权限
+      actions: write   # 保留清理工作流权限
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: build  # 明确检出build分支
-          fetch-depth: 0
+      - uses: actions/checkout@v3  # 保持原checkout版本
 
+      # 替换为指定的中间过程步骤
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 收集规则
+      - name: 运行main.py生成domain目录
         run: |
           echo "生成原始域名文件..."
           python collect.py
           echo "domain目录生成完成"
 
-      - name: 转换格式
+      - name: 运行convert_formats.py生成output目录
         run: |
           echo "转换格式生成output目录..."
           python transform.py
-          echo "output目录内容："
-          ls -lR output
+          echo "output目录结构："
+          tree output
 
       - name: 编译Singbox/Mihomo规则
         run: |
-          # 使用并行编译提高效率
-          compile_singbox() {
-            json_file=$1
-            dir=$(dirname $json_file)
-            (cd $dir && \
+          # 编译Singbox
+          find ./output -name "singbox.json" | while read json_file; do
+            (cd $(dirname $json_file) && \
               wget -q https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz -O sing-box.tar.gz && \
               tar -xzf sing-box.tar.gz && \
               ./*/sing-box rule-set compile singbox.json && \
               rm -rf sing-box.tar.gz */)
-          }
-          export -f compile_singbox
-          
-          compile_mihomo() {
-            yaml_file=$1
-            dir=$(dirname $yaml_file)
-            (cd $dir && \
+          done
+
+          # 编译Mihomo
+          find ./output -name "mihomo.yaml" | while read yaml_file; do
+            (cd $(dirname $yaml_file) && \
               wget -q https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz -O mihomo.gz && \
               gzip -d mihomo.gz && \
               chmod +x mihomo && \
               ./mihomo convert-ruleset domain yaml mihomo.yaml mihomo.mrs && \
               rm -rf mihomo)
-          }
-          export -f compile_mihomo
-          
-          # 并行编译
-          find ./output -name "singbox.json" | xargs -P 4 -I {} bash -c 'compile_singbox "{}"'
-          find ./output -name "mihomo.yaml" | xargs -P 4 -I {} bash -c 'compile_mihomo "{}"'
+          done
 
-      - name: 设置Git配置
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config core.compression 1
+      # 保留原自动提交推送步骤
+      - name: Commit & Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: 🚀 CI Updated
 
-      - name: 提交变更
-        run: |
-          # 拉取最新变更避免冲突
-          git pull origin build --rebase --no-verify
-          
-          # 添加变更文件
-          git add domain output
-          
-          # 检查是否有变更（参照示例的简洁判断方式）
-          if ! git diff --staged --quiet; then
-            git commit -m "🚀 CI Updated - $(date +'%Y-%m-%d %H:%M')" --no-verify
-            git push origin build --no-progress --no-verify
-          else
-            echo "没有变更需要提交"
-          fi
-
-      - name: 删除远程build分支
-        run: |
-          git push origin --delete build || true
-        continue-on-error: true
-
-      - name: 清理旧工作流
+      # 保留原清理旧工作流步骤
+      - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
