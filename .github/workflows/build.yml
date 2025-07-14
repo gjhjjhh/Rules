@@ -2,7 +2,7 @@ name: Build & Push Rules
 
 on:
   push:
-    branches: [ build ]
+    branches: [build]
   workflow_dispatch:
 
 jobs:
@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      TZ: Asia/Shanghai
-      PIP_CACHE_DIR: ~/.cache/pip
 
     steps:
       - name: Checkout code
@@ -20,26 +17,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Cache Python dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.PIP_CACHE_DIR }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: 'false'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt --no-cache-dir
 
-      - name: Generate domain files (main.py)
+      - name: Generate domain files
         run: |
           echo "生成原始域名文件..."
           if ! python main.py; then
@@ -47,7 +36,7 @@ jobs:
             exit 1
           fi
           if [ ! -d "domain" ] || [ -z "$(ls -A domain/*.txt 2>/dev/null)" ]; then
-            echo "❌ domain目录为空"
+            echo "❌ domain目录为空或不存在"
             exit 1
           fi
 
@@ -59,55 +48,63 @@ jobs:
             exit 1
           fi
           if [ ! -d "output" ] || [ -z "$(ls -A output 2>/dev/null)" ]; then
-            echo "❌ output目录为空"
+            echo "❌ output目录为空或不存在"
             exit 1
           fi
           # 打印目录结构确认
           echo "生成的目录结构："
           tree output/
 
-      - name: Build singbox/mihomo rulesets
+      - name: Build singbox mrs
         run: |
-          echo "编译规则集..."
-          # 编译Singbox规则（适配output目录）
-          find ./output -type f -name "singbox.json" | while read -r json_file; do
+          echo "编译Singbox规则集..."
+          find "${{ github.workspace }}/output" -type f -name "singbox.json" | while read -r json_file; do
             dir=$(dirname "$json_file")
-            (cd "$dir" && \
-              wget -q -O sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz && \
-              tar -xzf sing-box.tar.gz >/dev/null && \
-              ./*/sing-box rule-set compile "singbox.json" && \
-              rm -rf sing-box.tar.gz */)
+            filename=$(basename "$json_file")
+            echo "处理: $filename"
+            (
+              cd "$dir" || exit 1
+              wget -q -O sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz || exit 1
+              tar -xzf sing-box.tar.gz >/dev/null || exit 1
+              chmod +x */sing-box
+              ./*/sing-box rule-set compile "$filename" || exit 1
+              rm -rf sing-box.tar.gz */
+            ) || exit 1
           done
 
-          # 编译Mihomo规则（适配output目录）
-          find ./output -type f -name "mihomo.yaml" | while read -r yaml_file; do
+      - name: Build mihomo mrs
+        run: |
+          echo "编译Mihomo规则集..."
+          find "${{ github.workspace }}/output" -type f -name "mihomo.yaml" | while read -r yaml_file; do
             dir=$(dirname "$yaml_file")
-            (cd "$dir" && \
-              wget -q -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz && \
-              gzip -d mihomo.gz >/dev/null && \
-              chmod +x mihomo && \
-              ./mihomo convert-ruleset domain yaml "mihomo.yaml" "mihomo.mrs" && \
-              rm -rf mihomo)
+            filename=$(basename "$yaml_file")
+            echo "处理: $filename"
+            (
+              cd "$dir" || exit 1
+              wget -q -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz || exit 1
+              gzip -d mihomo.gz >/dev/null || exit 1
+              chmod +x mihomo
+              ./mihomo convert-ruleset domain yaml "$filename" "${filename%.yaml}.mrs" || exit 1
+              rm -rf mihomo
+            ) || exit 1
           done
 
       - name: Push to beta branch
         run: |
-          # 配置Git身份
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          WORKSPACE="${{ github.workspace }}"
 
-          # 克隆beta分支（或初始化）
-          if ! git clone --depth 1 -b beta "$REPO_URL" temp_repo; then
-            mkdir -p temp_repo && cd temp_repo && git init && git checkout -b beta && cd ..
+          # 克隆或创建beta分支
+          if ! git clone --depth 1 -b beta "$REPO_URL" "$WORKSPACE/temp_repo"; then
+            mkdir -p "$WORKSPACE/temp_repo" && cd "$WORKSPACE/temp_repo" && git init && git checkout -b beta && cd "$WORKSPACE"
           fi
 
-          # 复制output目录内容到beta分支
-          cd temp_repo || exit 1
-          # 清空原有内容（保留.git）
+          # 复制output目录内容
+          cd "$WORKSPACE/temp_repo" || exit 1
           find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
-          # 复制新生成的规则（output目录下所有内容）
-          cp -r ../output/* .
+          cp -r "$WORKSPACE/output"/* .
 
           # 提交推送
           if [ -n "$(git status --porcelain)" ]; then
