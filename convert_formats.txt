@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-生成文件路径：主目录/output/[规则名称]/[格式文件]
-取消冗余文件生成，仅保留必要格式
+域名规则格式转换工具
+输出路径：主目录/output/[规则名称]/[格式文件]
 """
 import os
 import json
@@ -9,57 +10,81 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-# 核心配置：输出目录调整为 主目录/output/规则名称/
-BASE_DIR = Path(__file__).parent  # 脚本所在目录（主目录）
-DOMAIN_DIR = BASE_DIR / "domain"  # 输入：domain目录（主目录下）
-OUTPUT_ROOT = BASE_DIR / "output"  # 输出根目录：主目录/output/
-REPO_URL = "https://github.com/your-repo"  # 替换为实际仓库地址
-SOURCE_RULE = "域名规则集合"
+# 路径配置（默认脚本在主目录，domain目录由main.py生成）
+BASE_DIR = Path(__file__).resolve().parent  # 库主目录
+DOMAIN_DIR = BASE_DIR / "domain"  # main.py生成的域名目录
+OUTPUT_ROOT = BASE_DIR / "output"  # 输出目录
 
-# 保留必要格式（取消冗余格式，按需保留）
+# 格式配置（保留所有格式）
 FORMAT_CONFIG = {
     "singbox": {
         "suffix": ".json",
         "comment": "//",
-        "title": "Singbox规则集",
-        "desc": "适用于Singbox的域名拦截规则",
-        "convert": lambda domains: {
-            "version": 3,
-            "rules": [{"domain_suffix": [d for d in domains if d.strip()]}]
-        }
+        "title": "Singbox 规则集",
+        "desc": "适用于Singbox v3",
+        "convert": lambda domains: {"version": 3, "rules": [{"domain_suffix": domains}]}
     },
     "adblock": {
         "suffix": ".txt",
         "comment": "!",
-        "title": "Adblock规则",
-        "desc": "适用于Adblock协议的拦截规则",
-        "convert": lambda domains: [f"||{d}^" for d in domains if d.strip()]
+        "title": "Adblock 规则",
+        "desc": "通用Adblock协议",
+        "convert": lambda domains: [f"||{d}^" for d in domains]
     },
-    "mihomo": {
-        "suffix": ".yaml",
+    "adguard": {
+        "suffix": ".txt",
+        "comment": "!",
+        "title": "AdGuardHome 规则",
+        "desc": "适用于AdGuard",
+        "convert": lambda domains: [f"||{d}^" for d in domains]
+    },
+    "dnsmasq": {
+        "suffix": ".conf",
         "comment": "#",
-        "title": "Mihomo规则集",
-        "desc": "适用于Clash Meta(Mihomo)的规则",
-        "convert": lambda domains: ["payload:"] + [f"  - '+.{d}'" for d in domains if d.strip()]
+        "title": "DNSMasq 规则",
+        "desc": "适用于DNSMasq",
+        "convert": lambda domains: [f"local=/{d}/" for d in domains]
     },
     "hosts": {
         "suffix": ".txt",
         "comment": "#",
-        "title": "Hosts规则",
-        "desc": "适用于系统Hosts的拦截规则",
-        "convert": lambda domains: ["127.0.0.1\tlocalhost", "0.0.0.0\t0.0.0.0", ""] + [f"0.0.0.0\t{d}" for d in domains if d.strip()]
+        "title": "Hosts 规则",
+        "desc": "系统Hosts文件",
+        "convert": lambda domains: ["127.0.0.1\tlocalhost", "0.0.0.0\t0.0.0.0", ""] + [f"0.0.0.0\t{d}" for d in domains]
+    },
+    "quantumultx": {
+        "suffix": ".list",
+        "comment": "#",
+        "title": "QuantumultX 规则",
+        "desc": "适用于QuantumultX",
+        "convert": lambda domains: [f"host-suffix,{d},reject" for d in domains]
+    },
+    "loon": {
+        "suffix": ".list",
+        "comment": "#",
+        "title": "Loon 规则",
+        "desc": "适用于Loon",
+        "convert": lambda domains: [f"DOMAIN-SUFFIX,{d}" for d in domains],
+        "special_header": True
+    },
+    "mihomo": {
+        "suffix": ".yaml",
+        "comment": "#",
+        "title": "Mihomo 规则",
+        "desc": "适用于Clash Meta",
+        "convert": lambda domains: ["payload:"] + [f"  - '+.{d}'" for d in domains]
     }
 }
 
-# 确保输出根目录存在
+# 初始化输出目录
 OUTPUT_ROOT.mkdir(exist_ok=True)
 
 
 def get_meta():
-    """获取元数据（版本、时间等）"""
+    """获取元数据"""
     try:
         version = subprocess.check_output(
-            ['git', 'describe', '--abbrev=0', '--tags'],
+            ["git", "describe", "--abbrev=0", "--tags"],
             stderr=subprocess.STDOUT,
             cwd=BASE_DIR
         ).strip().decode() or "unknown"
@@ -67,82 +92,78 @@ def get_meta():
         version = "unknown"
     return {
         "version": version,
-        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " UTC+8",
-        "repo": REPO_URL
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC+8"),
+        "repo": "https://github.com/your-repo"
     }
 
 
-def read_domains(file_path: Path) -> list:
-    """读取域名文件（去重+过滤空行）"""
-    with open(file_path, 'r', encoding='utf-8') as f:
+def read_domains(file_path):
+    """读取域名（去重）"""
+    with open(file_path, "r", encoding="utf-8") as f:
         return list(set([line.strip() for line in f if line.strip()]))
 
 
-def process_file(file_path: Path, meta: dict):
-    """处理单个域名文件，生成到 output/规则名称/ 目录"""
+def build_header(fmt_info, total, meta):
+    """生成文件头"""
+    comment = fmt_info["comment"]
+    header = []
+    if fmt_info.get("special_header"):
+        header = [
+            f"#!name={fmt_info['title']}",
+            f"#!desc={fmt_info['desc']} | 版本：{meta['version']}",
+            f"#!date={meta['time']}",
+            f"#!homepage={meta['repo']}",
+            ""
+        ]
+    else:
+        header = [
+            f"{comment}{fmt_info['title']}",
+            f"{comment}描述：{fmt_info['desc']}",
+            f"{comment}版本：{meta['version']} | 更新时间：{meta['time']}",
+            f"{comment}来源：{meta['repo']}",
+            f"{comment}",
+            ""
+        ]
+    return header
+
+
+def process_file(file_path, meta):
+    """处理单个域名文件"""
+    rule_name = file_path.stem
     domains = read_domains(file_path)
     if not domains:
-        print(f"⚠️ 跳过空文件: {file_path.name}")
+        print(f"⚠️ 跳过空文件：{rule_name}")
         return
 
-    # 规则名称 = 域名文件名（不含后缀）
-    rule_name = file_path.stem
-    # 输出目录：output/规则名称/
-    rule_out_dir = OUTPUT_ROOT / rule_name
-    rule_out_dir.mkdir(exist_ok=True)
-    print(f"\n📄 处理规则: {rule_name} (域名数: {len(domains)})")
+    out_dir = OUTPUT_ROOT / rule_name
+    out_dir.mkdir(exist_ok=True)
+    print(f"\n处理规则：{rule_name}（域名数：{len(domains)}）")
 
-    # 生成所有必要格式（取消冗余格式）
     for fmt_name, fmt in FORMAT_CONFIG.items():
-        # 生成规则内容
         rules = fmt["convert"](domains)
-        # 计算有效规则数
         total = len(rules["rules"][0]["domain_suffix"]) if fmt_name == "singbox" else len(rules)
-        # 输出文件路径：output/规则名称/[格式名].[后缀]
-        output_file = rule_out_dir / f"{fmt_name}{fmt['suffix']}"
+        output_file = out_dir / f"{fmt_name}{fmt['suffix']}"
 
-        # 构建头部注释
-        comment = fmt["comment"]
-        header = [
-            f"{comment}{fmt['title']}",
-            f"{comment}描述：{fmt['desc']}",
-            f"{comment}版本：{meta['version']}",
-            f"{comment}更新时间：{meta['time']}",
-            f"{comment}规则数量：{total}",
-            f"{comment}来源：{meta['repo']}",
-            f"{comment}"
-        ]
-
-        # 写入文件（取消冗余写入逻辑）
-        try:
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write('\n'.join(header))
-                if fmt_name == "singbox":
-                    json.dump(rules, f, indent=2, ensure_ascii=False)
-                else:
-                    f.write('\n'.join(rules))
-            print(f"✅ 生成: {output_file.relative_to(BASE_DIR)}")
-        except Exception as e:
-            print(f"❌ 生成{fmt_name}失败: {e}")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(build_header(fmt, total, meta)))
+            if fmt_name == "singbox":
+                json.dump(rules, f, indent=2, ensure_ascii=False)
+            else:
+                f.write("\n".join(rules))
+        print(f"生成：{output_file.relative_to(BASE_DIR)}")
 
 
 def main():
     meta = get_meta()
-    # 检查输入目录
-    if not DOMAIN_DIR.exists():
-        print(f"❌ 错误：输入目录不存在 - {DOMAIN_DIR}")
-        return
-
-    # 仅处理domain目录下的.txt文件（取消其他文件处理）
+    # 直接处理domain目录下的txt文件（默认存在）
     for file in DOMAIN_DIR.glob("*.txt"):
         if file.is_file():
             process_file(file, meta)
-    
-    print(f"\n🎉 所有规则生成完成，输出目录: {OUTPUT_ROOT.relative_to(BASE_DIR)}")
+    print(f"\n完成，输出目录：{OUTPUT_ROOT.relative_to(BASE_DIR)}")
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n⚠️ 用户中断操作")
+        print("\n用户中断")
