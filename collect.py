@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 从links.txt读取规则链接，结合white_links.txt白名单，处理为纯domain格式并输出到domain目录
-优化版：多线程下载链接，增强稳定性
 """
 import re
 import sys
@@ -99,7 +98,6 @@ def extract(line: str) -> Optional[str]:
         # 规则格式 (DOMAIN-SUFFIX, DOMAIN, etc.)
         if m := RULE_PATTERN.match(clean_line):
             domain = m.group(1).strip()
-            # 检查是否是域名规则
             if domain and is_valid(domain):
                 return domain
         
@@ -199,7 +197,7 @@ def load_whitelist() -> dict:
         if not sanitized:
             continue
 
-        # 下载白名单内容（安全处理）
+        # 下载白名单内容
         wl_domains = set()
         for url in urls:
             lines, _ = download(url, True)
@@ -213,7 +211,7 @@ def load_whitelist() -> dict:
     return whitelist
 
 
-# 域名优化模块（优化子域名去重）
+# 域名优化模块
 def remove_subdomains(domains: Set[str]) -> Set[str]:
     """高效子域名去重算法"""
     if len(domains) <= 1:
@@ -245,7 +243,7 @@ def remove_subdomains(domains: Set[str]) -> Set[str]:
 
 # 处理单个规则组
 def process_rule_group(name: str, urls: List[str], whitelist: dict, output_dir: Path) -> None:
-    """处理单个规则组（线程安全）"""
+    """处理单个规则组"""
     sanitized = sanitize(name)
     if not sanitized:
         return
@@ -320,7 +318,7 @@ def main():
         log("无效规则配置", critical=True)
         return
 
-    # 加载白名单（安全处理）
+    # 加载白名单
     whitelist = load_whitelist()
 
     # 使用线程池处理规则组
