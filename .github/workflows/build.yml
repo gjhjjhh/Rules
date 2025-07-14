@@ -1,4 +1,4 @@
-name: Build & Push Rules
+name: 生成规则文件到output目录
 
 on:
   push:
@@ -6,112 +6,83 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  generate-rules:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write  # 添加内容写入权限
+    env:
+      WORKSPACE: ${{ github.workspace }}
 
     steps:
-      - name: Checkout code
+      - name: 拉取代码
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Set up Python
+      - name: 显示目录结构
+        run: |
+          echo "当前仓库根目录文件："
+          ls -la $WORKSPACE
+
+      - name: 配置Python环境
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt --no-cache-dir
+          pip install -r requirements.txt
 
-      - name: Generate domain files
+      - name: 运行main.py生成domain目录
         run: |
-          echo "生成原始域名文件..."
-          if ! python main.py; then
-            echo "❌ main.py执行失败"
+          echo "=== 生成原始域名文件 ==="
+          if [ ! -f "$WORKSPACE/main.py" ]; then
+            echo "❌ 错误：$WORKSPACE/main.py不存在"
             exit 1
           fi
-          if [ ! -d "domain" ] || [ -z "$(ls -A domain/*.txt 2>/dev/null)" ]; then
-            echo "❌ domain目录为空或不存在"
+          python $WORKSPACE/main.py
+          if [ ! -d "$WORKSPACE/domain" ]; then
+            echo "❌ 错误：未生成domain目录"
             exit 1
           fi
+          echo "✅ domain目录生成成功"
 
-      - name: Convert formats (output/规则名称/)
+      - name: 运行convert_formats.py生成output目录
         run: |
-          echo "转换格式到output目录..."
-          if ! python convert_formats.py; then
-            echo "❌ convert_formats.py执行失败"
+          echo "=== 生成output目录规则 ==="
+          if [ ! -f "$WORKSPACE/convert_formats.py" ]; then
+            echo "❌ 错误：$WORKSPACE/convert_formats.py不存在"
             exit 1
           fi
-          if [ ! -d "output" ] || [ -z "$(ls -A output 2>/dev/null)" ]; then
-            echo "❌ output目录为空或不存在"
+          python $WORKSPACE/convert_formats.py
+          if [ ! -d "$WORKSPACE/output" ]; then
+            echo "❌ 错误：未生成output目录"
             exit 1
           fi
-          # 打印目录结构确认
-          echo "生成的目录结构："
-          tree output/
+          echo "✅ output目录结构："
+          tree $WORKSPACE/output
 
-      - name: Build singbox mrs
+      - name: 编译Singbox/Mihomo规则集
         run: |
-          echo "编译Singbox规则集..."
-          find "${{ github.workspace }}/output" -type f -name "singbox.json" | while read -r json_file; do
-            dir=$(dirname "$json_file")
-            filename=$(basename "$json_file")
-            echo "处理: $filename"
-            (
-              cd "$dir" || exit 1
-              wget -q -O sing-box.tar.gz https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz || exit 1
-              tar -xzf sing-box.tar.gz >/dev/null || exit 1
-              chmod +x */sing-box
-              ./*/sing-box rule-set compile "$filename" || exit 1
-              rm -rf sing-box.tar.gz */
-            ) || exit 1
+          echo "=== 编译规则集 ==="
+          # 编译Singbox
+          find $WORKSPACE/output -name "singbox.json" | while read json_file; do
+            (cd $(dirname $json_file) && \
+              wget -q https://github.com/SagerNet/sing-box/releases/download/v1.11.4/sing-box-1.11.4-linux-amd64.tar.gz -O sing-box.tar.gz && \
+              tar -xzf sing-box.tar.gz && \
+              ./*/sing-box rule-set compile singbox.json && \
+              rm -rf sing-box.tar.gz */)
+          done
+          # 编译Mihomo
+          find $WORKSPACE/output -name "mihomo.yaml" | while read yaml_file; do
+            (cd $(dirname $yaml_file) && \
+              wget -q https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz -O mihomo.gz && \
+              gzip -d mihomo.gz && \
+              chmod +x mihomo && \
+              ./mihomo convert-ruleset domain yaml mihomo.yaml mihomo.mrs && \
+              rm -rf mihomo)
           done
 
-      - name: Build mihomo mrs
+      - name: 完成提示
         run: |
-          echo "编译Mihomo规则集..."
-          find "${{ github.workspace }}/output" -type f -name "mihomo.yaml" | while read -r yaml_file; do
-            dir=$(dirname "$yaml_file")
-            filename=$(basename "$yaml_file")
-            echo "处理: $filename"
-            (
-              cd "$dir" || exit 1
-              wget -q -O mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.3/mihomo-linux-amd64-v1.19.3.gz || exit 1
-              gzip -d mihomo.gz >/dev/null || exit 1
-              chmod +x mihomo
-              ./mihomo convert-ruleset domain yaml "$filename" "${filename%.yaml}.mrs" || exit 1
-              rm -rf mihomo
-            ) || exit 1
-          done
-
-      - name: Push to beta branch
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-          WORKSPACE="${{ github.workspace }}"
-
-          # 克隆或创建beta分支
-          if ! git clone --depth 1 -b beta "$REPO_URL" "$WORKSPACE/temp_repo"; then
-            mkdir -p "$WORKSPACE/temp_repo" && cd "$WORKSPACE/temp_repo" && git init && git checkout -b beta && cd "$WORKSPACE"
-          fi
-
-          # 复制output目录内容
-          cd "$WORKSPACE/temp_repo" || exit 1
-          find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec rm -rf {} +
-          cp -r "$WORKSPACE/output"/* .
-
-          # 提交推送
-          if [ -n "$(git status --porcelain)" ]; then
-            git add .
-            git commit -m "Auto update: $(date +'%Y-%m-%d %H:%M:%S')"
-            git push "$REPO_URL" beta -f
-            echo "✅ 成功推送到beta分支"
-          else
-            echo "ℹ️ 无新变更，无需推送"
-          fi
+          echo "🎉 规则文件已生成在：$WORKSPACE/output"
