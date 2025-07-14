@@ -2,39 +2,39 @@ name: Build Rules
 
 on:
   schedule:
-    - cron: "0 1 * * *"  # 保持定时触发
-  workflow_dispatch:  # 保持手动触发
+    - cron: "0 1 * * *"
+  workflow_dispatch:
 
 env:
-  TZ: Asia/Shanghai  # 保持时区设置
+  TZ: Asia/Shanghai
 
 jobs:
   Build_Rules:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 保留写入权限
-      actions: write   # 保留清理工作流权限
+      contents: write
+      actions: write
 
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 获取完整历史记录，提高推送效率
+          fetch-depth: 0
 
-      - name: 安装依赖
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: 运行main.py生成domain目录
+      - name: Collect
         run: |
           echo "生成原始域名文件..."
-          python main.py
+          python collect.py
           echo "domain目录生成完成"
 
-      - name: 运行convert_formats.py生成output目录
+      - name: Transform
         run: |
           echo "转换格式生成output目录..."
-          python convert_formats.py
+          python transform.py
           echo "output目录内容："
           ls -lR output  # 使用ls替代tree，避免额外安装
 
