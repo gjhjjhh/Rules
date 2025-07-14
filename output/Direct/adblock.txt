@@ -1,6 +1,6 @@
 ! Title: Adblock 规则
 ! Description: 通用Adblock协议
-! Time: 2025-07-14 19:22:06 UTC+8
+! Time: 2025-07-14 21:56:01 UTC+8
 ! Homepage: https://github.com/gjhjjhh/Rules
 !
 ||00cdn.com^
